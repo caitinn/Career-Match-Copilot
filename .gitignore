@@ -1,0 +1,36 @@
+# macOS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Local secrets
+.env
+.env.local
+.env.*.local
+app/backend/.env
+app/frontend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+app/backend/.venv/
+app/backend/logs/
+app/backend/*.db
+app/backend/*.sqlite
+app/backend/*.sqlite3
+
+# Node / frontend
+app/frontend/node_modules/
+app/frontend/dist/
+app/frontend/.vite/
+app/frontend/coverage/
+
+# Local and generated project data
+uploads/
+.pnpm-store/
+.atoms/
+.wiki.md
