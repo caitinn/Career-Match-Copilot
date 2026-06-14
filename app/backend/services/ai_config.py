@@ -22,6 +22,10 @@ class AIConfig:
 _runtime_config: Optional[AIConfig] = None
 
 
+def is_ai_config_read_only() -> bool:
+    return os.getenv("AI_CONFIG_READ_ONLY", "").lower() in ("1", "true", "yes")
+
+
 def set_runtime_ai_config(base_url: str, api_key: str, text_model: str) -> None:
     global _runtime_config
     _runtime_config = AIConfig(
@@ -37,6 +41,9 @@ def persist_ai_config(
     text_model: str,
 ) -> AIConfig:
     """Persist AI settings to the ignored backend .env file."""
+    if is_ai_config_read_only():
+        raise ValueError("线上环境的 AI 配置由部署平台环境变量管理")
+
     existing = get_ai_config()
     resolved_key = (api_key or "").strip() or (existing.api_key if existing else "")
     if not resolved_key:
@@ -69,6 +76,9 @@ def clear_runtime_ai_config() -> None:
 
 def clear_persisted_ai_config() -> None:
     """Remove persisted AI settings while keeping unrelated .env values."""
+    if is_ai_config_read_only():
+        raise ValueError("线上环境的 AI 配置由部署平台环境变量管理")
+
     clear_runtime_ai_config()
     for key in ("APP_AI_BASE_URL", "APP_AI_KEY", "APP_AI_TEXT_MODEL"):
         if BACKEND_ENV_PATH.exists():

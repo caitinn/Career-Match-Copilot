@@ -77,6 +77,12 @@ export function getAPIBaseURL(): string {
   return getConfig().API_BASE_URL;
 }
 
+export function apiUrl(path: string): string {
+  const baseUrl = getAPIBaseURL().replace(/\/+$/, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${baseUrl}${normalizedPath}`;
+}
+
 // For backward compatibility, but this should be avoided
 // Removed static export to prevent using stale config values
 // export const API_BASE_URL = getAPIBaseURL();

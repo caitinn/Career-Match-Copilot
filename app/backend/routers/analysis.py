@@ -44,8 +44,11 @@ async def update_analysis_config(data: AIConfigRequest):
 @router.delete("/config", response_model=AIConfigResponse)
 async def delete_analysis_config():
     """Clear persisted and in-memory AI configuration."""
-    clear_persisted_ai_config()
-    return AIConfigResponse(**get_ai_config_status())
+    try:
+        clear_persisted_ai_config()
+        return AIConfigResponse(**get_ai_config_status())
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/analyze", response_model=AnalysisResponse)

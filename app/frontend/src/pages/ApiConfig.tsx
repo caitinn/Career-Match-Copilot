@@ -5,6 +5,7 @@ import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { apiUrl } from '@/lib/config';
 import {
   Select,
   SelectContent,
@@ -48,7 +49,7 @@ export default function ApiConfig() {
 
   const loadStatus = async () => {
     try {
-      const response = await fetch('/api/v1/analysis/config');
+      const response = await fetch(apiUrl('/api/v1/analysis/config'));
       if (!response.ok) throw new Error('无法读取 API 配置');
       const data: AIConfigStatus = await response.json();
       setStatus(data);
@@ -87,7 +88,7 @@ export default function ApiConfig() {
 
     setSaving(true);
     try {
-      const response = await fetch('/api/v1/analysis/config', {
+      const response = await fetch(apiUrl('/api/v1/analysis/config'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -114,7 +115,7 @@ export default function ApiConfig() {
   const handleClear = async () => {
     setSaving(true);
     try {
-      const response = await fetch('/api/v1/analysis/config', {
+      const response = await fetch(apiUrl('/api/v1/analysis/config'), {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('清除配置失败');

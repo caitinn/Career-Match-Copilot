@@ -265,6 +265,78 @@ pnpm dev
 
 前端默认运行在 [http://127.0.0.1:3000](http://127.0.0.1:3000)，开发服务器会把 `/api` 请求代理到 `http://localhost:8000`。
 
+## 快速部署：Railway + Vercel
+
+推荐先部署后端，再部署前端。整个过程不依赖本地电脑持续运行。
+
+### 1. 在 Railway 部署后端
+
+1. 登录 [Railway](https://railway.com/)。
+2. 选择 **New Project → Deploy from GitHub repo**。
+3. 选择 `caitinn/Career-Match-Copilot`。
+4. 将服务的 **Root Directory** 设置为：
+
+```text
+app/backend
+```
+
+5. Railway 会根据 `requirements.txt` 安装 Python 依赖，并通过 `Procfile` 执行：
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+6. 在 Railway 的 **Variables** 中添加：
+
+```dotenv
+APP_AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+APP_AI_KEY=你的_Google_AI_Studio_API_Key
+APP_AI_TEXT_MODEL=gemini-2.5-flash
+MGX_IGNORE_INIT_DB=1
+MGX_IGNORE_INIT_DATA=1
+MGX_IGNORE_INIT_ADMIN=1
+AI_CONFIG_READ_ONLY=1
+```
+
+7. 在 **Settings → Networking** 中生成公开域名。
+8. 访问 `https://你的-railway-域名/health`，看到 `{"status":"healthy"}` 表示后端部署成功。
+
+### 2. 在 Vercel 部署前端
+
+1. 登录 [Vercel](https://vercel.com/)。
+2. 选择 **Add New → Project**，导入同一个 GitHub 仓库。
+3. 将 **Root Directory** 设置为：
+
+```text
+app/frontend
+```
+
+4. Framework Preset 选择 **Vite**。
+5. 保持以下构建配置：
+
+```text
+Install Command: pnpm install
+Build Command: pnpm build
+Output Directory: dist
+```
+
+6. 在 Vercel 的 **Environment Variables** 中添加：
+
+```dotenv
+VITE_API_BASE_URL=https://你的-railway-域名
+```
+
+不要在末尾添加 `/api`。变量修改后需要重新部署前端。
+
+7. 点击 **Deploy**。部署完成后打开 Vercel 域名，上传 JD 和简历进行测试。
+
+### 3. 云端配置说明
+
+- `APP_AI_KEY` 只配置在 Railway，不要配置到 Vercel。
+- `AI_CONFIG_READ_ONLY=1` 时，线上 API 配置由 Railway Variables 管理，页面无法永久修改密钥。
+- 本地开发仍可在 `/ai-config` 页面保存 API 配置。
+- Railway 与 Vercel 的免费额度和休眠策略可能调整，请以平台当前规则为准。
+
 ## 主要页面
 
 | 路径 | 功能 |

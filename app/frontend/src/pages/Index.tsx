@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { client } from '@/lib/api';
+import { apiUrl } from '@/lib/config';
 import { Upload, ArrowRight, Settings2 } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import {
@@ -23,7 +23,7 @@ export default function Index() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch('/api/v1/analysis/config')
+    fetch(apiUrl('/api/v1/analysis/config'))
       .then((response) => response.json())
       .then((data) => setAiConfigured(Boolean(data.configured)))
       .catch(() => setAiConfigured(false));
@@ -71,16 +71,17 @@ export default function Index() {
       if (hasJd) requestData.jd_text = jdText;
       if (pdfBase64) requestData.pdf_base64 = pdfBase64;
 
-      const response = await client.apiCall.invoke({
-        url: '/api/v1/analysis/analyze',
+      const response = await fetch(apiUrl('/api/v1/analysis/analyze'), {
         method: 'POST',
-        data: requestData,
-        options: {
-          timeout: 600_000,
-        },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData),
       });
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData?.detail || '分析失败，请重试');
+      }
 
-      const incoming = response.data as AnalysisResult;
+      const incoming = responseData as AnalysisResult;
       let nextState = mergeAnalysisState(getAnalysisState(), incoming, {
         jdText: hasJd ? jdText.trim() : undefined,
         resumeFileName: pdfFile?.name,
@@ -92,7 +93,7 @@ export default function Index() {
         nextState.resume_analysis
       ) {
         try {
-          const matchResponse = await fetch('/api/v1/analysis/match', {
+          const matchResponse = await fetch(apiUrl('/api/v1/analysis/match'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
